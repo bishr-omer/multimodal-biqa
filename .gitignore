@@ -1,0 +1,19 @@
+# Large data files
+results/*.npy
+data/
+*.npy
+*.zip
+*.mat
+
+# Environment
+iqa_env/
+__pycache__/
+*.pyc
+.env
+
+# Old files
+extract_mvg.py
+extract_mvg_fast.py
+benchmark.py
+check.py
+koniq_llava_featuresp.npy

@@ -1,0 +1,9 @@
+open-clip-torch
+torch
+Pillow<12.0
+numpy
+pandas
+scikit-learn
+scikit-image
+scipy
+tqdm
