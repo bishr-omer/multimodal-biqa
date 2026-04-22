@@ -1,6 +1,6 @@
-# MVG-VLM-IQA — Blind Image Quality Assessment via Multimodal Feature Fusion
+# Multimodal-BIQA — Blind Image Quality Assessment via Multimodal Feature Fusion
 
-> Bridging statistical natural scene statistics and vision-language model representations for no-reference image quality assessment.
+> Bridging classical natural scene statistics and vision-language model representations for no-reference image quality assessment.
 
 ---
 
