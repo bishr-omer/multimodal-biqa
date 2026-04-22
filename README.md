@@ -139,7 +139,7 @@ If you use this code, please cite:
   title   = {Bridging Statistical and Semantic Representations for Blind Image Quality Assessment via Multimodal Feature Fusion},
   author  = {Omer, Bishr},
   year    = {2026},
-  url     = {https://github.com/bishr-omer/mvg-vlm-iqa}
+ url     = {https://github.com/bishr-omer/multimodal-biqa}
 }
 ```
 
