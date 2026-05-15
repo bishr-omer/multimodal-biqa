@@ -1,158 +1,186 @@
-# Multimodal-BIQA - Blind Image Quality Assessment via Multimodal Feature Fusion
+# Distortion-Aware Fusion of Statistical and Vision-Language Features for Blind Image Quality Assessment
 
-> Bridging classical natural scene statistics and vision-language model representations for no-reference image quality assessment.
+**Bishr Omer Abdelrahman, Xu Li**  
+Northwestern Polytechnical University, Xi'an, China
+
+> *Submitted for publication. Preprint coming soon.*
 
 ---
 
 ## Overview
 
-Classical NR-IQA methods model **statistical regularity** (what "normal" looks like in natural images). Vision-language models learn **semantic quality representations** through language-vision alignment. This project asks whether combining both gives better blind quality prediction — and demonstrates that it does, consistently across three standard benchmarks.
+We propose a three-stream blind image quality assessment (BIQA) framework that combines:
 
-We fuse three complementary feature streams:
+- **NSS stream:** 138-dimensional natural scene statistics descriptor (spatial + spectral)
+- **SigLIP stream:** ViT-SO400M-14-SigLIP-384 embeddings (1152D → 256D via PCA)
+- **CLIP-H stream:** ViT-H-14 LAION-2B embeddings (1024D → 256D via PCA)
 
-- **NSS features** — 138-dim spatial and spectral descriptors extracted via a Log-Gabor filter bank, motivated by the multivariate Gaussian (MVG) pansharpening framework
-- **CLIP embeddings** — 512-dim L2-normalised visual features from ViT-B/32
-- **LLaVA hidden states** — 4096-dim penultimate-layer embeddings from LLaVA-1.6 (Mistral-7B)
+A lightweight **multiplicative gating network** learns per-input stream weights conditioned on image content. The gate values positively correlate (ρ = 0.33) with the per-distortion NSS contribution measured by independent ablation, providing interpretable cross-validation of the fusion design.
 
-Fusion is performed with a GradientBoostingRegressor trained to predict MOS scores.
+All VLM backbones are kept **entirely frozen**. Only the MLP regression head (~466,000 parameters) is trained, making the entire pipeline runnable on CPU after a one-time GPU feature extraction step.
 
 ---
 
 ## Results
 
-### KonIQ-10k (authentic distortions, 10,073 images)
+| Dataset | SROCC | PLCC |
+|---------|-------|------|
+| KonIQ-10k | **0.9142** | **0.9279** |
+| KADID-10k | **0.9715** | **0.9733** |
+| LIVE-itW | **0.8527** | **0.8802** |
 
-| Model | SROCC | PLCC | KROCC |
-|---|---|---|---|
-| NSS only | 0.7743 | 0.8083 | 0.5785 |
-| CLIP only | 0.7728 | 0.8074 | 0.5776 |
-| LLaVA score only | 0.4360 | 0.5190 | 0.3325 |
-| CLIP + NSS | 0.8535 | 0.8819 | 0.6659 |
-| CLIP + NSS + LLaVA score | 0.8620 | 0.8887 | 0.6770 |
-| **CLIP + NSS + LLaVA feat** | **0.8698** | **0.8965** | **0.6865** |
+Our method achieves **state-of-the-art SROCC of 0.9715 on KADID-10k**, surpassing MANIQA (0.946), LIQE (0.930), and Q-Align (0.937).
 
-### KADID-10k (synthetic distortions, 10,125 images)
+---
 
-| Model | SROCC | PLCC | KROCC |
-|---|---|---|---|
-| NSS only | 0.8216 | 0.8185 | 0.6341 |
-| CLIP only | 0.8976 | 0.8889 | 0.7220 |
-| **CLIP + NSS** | **0.9118** | **0.9035** | **0.7430** |
+## Installation
 
-### LIVE-itW (in-the-wild, 1,162 images)
+```bash
+git clone https://github.com/bishr-omer/multimodal-biqa.git
+cd multimodal-biqa
+pip install -r requirements.txt
+```
 
-| Model | SROCC | PLCC | KROCC |
-|---|---|---|---|
-| NSS only | 0.6473 | 0.6474 | 0.4697 |
-| CLIP only | 0.6681 | 0.6871 | 0.4803 |
-| **CLIP + NSS** | **0.7569** | **0.7743** | **0.5602** |
+Tested on Python 3.11, CPU-only training. GPU required only for feature extraction.
 
-> **Key finding:** LLaVA hidden-state embeddings contribute independently of the scalar quality score — appending the score alone adds marginal gain, while the full 4096-dim representation drives the strongest result on KonIQ-10k. The scalar quality score encodes no information beyond what the hidden states already capture.
+---
+
+## Usage
+
+### Step 1: Extract NSS features
+
+```bash
+python extract_nss.py \
+    --dataset koniq \
+    --image_dir /path/to/koniq/images \
+    --output_path features/koniq_nss.npy
+```
+
+Supported datasets: `koniq`, `kadid`, `liveitw`
+
+### Step 2: Extract VLM features (requires GPU)
+
+```bash
+python extract_vlm.py \
+    --dataset koniq \
+    --image_dir /path/to/koniq/images \
+    --output_dir features/ \
+    --models siglip clip_h
+```
+
+This produces `koniq_siglip.npy` and `koniq_clip_h.npy` in the output directory.
+
+Features are extracted once and cached. All subsequent training runs use the cached `.npy` files.
+
+### Step 3: Train static fusion (main paper results)
+
+```bash
+# KonIQ-10k
+python train_fusion.py --config configs/koniq.yaml
+
+# KADID-10k
+python train_fusion.py --config configs/kadid.yaml
+
+# LIVE-itW (pretrain + finetune + ensemble)
+python train_fusion_liveitw.py --config configs/liveitw.yaml
+```
+
+### Step 4: Train gating model
+
+```bash
+python train_gated.py --config configs/koniq.yaml
+python train_gated.py --config configs/kadid.yaml
+```
+
+### Step 5: Evaluate
+
+```bash
+python evaluate.py \
+    --predictions results/predictions/koniq_NSS_SigLIP_CLIPH.csv \
+    --dataset koniq
+```
+
+---
+
+## Ablation Results
+
+### KonIQ-10k (5-fold CV)
+
+| Configuration | SROCC | PLCC |
+|---------------|-------|------|
+| NSS only | 0.568 | 0.587 |
+| SigLIP only | 0.891 | 0.908 |
+| CLIP-H only | 0.882 | 0.900 |
+| NSS + SigLIP | 0.903 | 0.919 |
+| NSS + CLIP-H | 0.893 | 0.911 |
+| SigLIP + CLIP-H | 0.910 | 0.924 |
+| **All three** | **0.914** | **0.928** |
+
+### KADID-10k (5-fold CV)
+
+| Configuration | SROCC | PLCC |
+|---------------|-------|------|
+| NSS only | 0.898 | 0.898 |
+| SigLIP only | 0.967 | 0.969 |
+| CLIP-H only | 0.966 | 0.968 |
+| NSS + SigLIP | 0.970 | 0.971 |
+| NSS + CLIP-H | 0.969 | 0.970 |
+| SigLIP + CLIP-H | 0.970 | 0.972 |
+| **All three** | **0.972** | **0.973** |
 
 ---
 
 ## Repository Structure
 
 ```
-mvg-vlm-iqa/
-├── extract_clip.py       # CLIP ViT-B/32 feature extraction
-├── extract_nss.py        # Log-Gabor NSS feature extraction
-├── fusion.py             # Three-stream fusion — KonIQ-10k
-├── fusion_kadid.py       # Two-stream fusion — KADID-10k
-├── fusion_liveitw.py     # Two-stream fusion — LIVE-itW
-├── results/              # Output .npy files (not tracked)
-├── data/                 # Dataset files (not tracked)
-└── notebooks/
-    └── demo.ipynb
+multimodal-biqa/
+├── extract_nss.py          # NSS feature extraction (CPU)
+├── extract_vlm.py          # SigLIP + CLIP-H extraction (GPU)
+├── train_fusion.py         # Static concatenation fusion, 5-fold CV
+├── train_fusion_liveitw.py # Pretrain + finetune + ensemble for LIVE-itW
+├── train_gated.py          # Multiplicative gating fusion
+├── evaluate.py             # Compute SROCC / PLCC / KROCC
+├── requirements.txt
+├── configs/
+│   ├── koniq.yaml
+│   ├── kadid.yaml
+│   └── liveitw.yaml
+└── figures/
+    ├── fig2_per_distortion_srocc.png
+    ├── fig3_nss_contribution.png
+    └── fig4_gate_analysis.png
 ```
 
 ---
 
-## Setup
+## Pretrained Features
 
-```bash
-git clone https://github.com/bishr-omer/mvg-vlm-iqa.git
-cd mvg-vlm-iqa
-pip install -r requirements.txt
-```
+Precomputed features for all three datasets are available at:
 
----
+> **[Google Drive link — coming soon]**
 
-## Usage
-
-### 1. Extract NSS features
-
-```bash
-python extract_nss.py <image_folder> results/koniq_nss_features.npy
-```
-
-### 2. Extract CLIP features
-
-```bash
-python extract_clip.py <image_folder> results/koniq_clip_features.npy
-```
-
-### 3. Run fusion
-
-```bash
-# KonIQ-10k (three-stream, requires LLaVA features)
-python fusion.py
-
-# KADID-10k
-python fusion_kadid.py
-
-# LIVE-itW
-python fusion_liveitw.py
-```
-
----
-
-## Datasets
-
-| Dataset | Images | Type | Source |
-|---|---|---|---|
-| KonIQ-10k | 10,073 | Authentic | [link](http://database.mmsp-kn.de/koniq-10k.html) |
-| KADID-10k | 10,125 | Synthetic | [link](http://database.mmsp-kn.de/kadid-10k.html) |
-| LIVE-itW | 1,169 | In-the-wild | [link](https://live.ece.utexas.edu/research/ChallengeDB) |
-
-Place datasets under `data/koniq10k/`, `data/kadid10k/`, and `data/liveitw/` respectively.
-
----
-
-## LLaVA Feature Extraction
-
-LLaVA-1.6 (Mistral-7B) requires ~14GB VRAM. Extraction was performed on Kaggle T4×2 GPU sessions. The extraction notebook will be added to `notebooks/` shortly.
-
-The saved `.npy` dictionary contains:
-- `features` — shape `(N, 4096)` hidden-state embeddings
-- `scores` — shape `(N,)` predicted quality scores (1–10)
-- `names` — list of filenames
+Download and place in the `features/` directory.
 
 ---
 
 ## Citation
 
-If you use this code, please cite:
+If you find this work useful, please cite:
 
 ```bibtex
-@misc{omer2026mvgvlmiqa,
-  title   = {Bridging Statistical and Semantic Representations for Blind Image Quality Assessment via Multimodal Feature Fusion},
-  author  = {Omer, Bishr},
-  year    = {2026},
- url     = {https://github.com/bishr-omer/multimodal-biqa}
+@article{adam2026distortion,
+  title   = {Distortion-Aware Fusion of Statistical and Vision-Language
+             Features for Blind Image Quality Assessment},
+  author  = {Adam, Bishr Omer and Li, Xu},
+  journal = {[journal name]},
+  year    = {2026}
 }
 ```
 
 ---
 
-## Related Work
+## Acknowledgements
 
-- [CLIP-IQA](https://github.com/IceClear/CLIP-IQA) — Wang et al., 2023
-- [Q-Align](https://github.com/Q-Future/Q-Align) — Zhang et al., 2024
-- [BRISQUE](https://live.ece.utexas.edu/research/Quality/index_algorithms.htm) — Mittal et al., 2012
-
----
-
-## License
-
-MIT
+This work was supported by [funding agency].  
+VLM feature extraction uses [OpenCLIP](https://github.com/mlfoundations/open_clip)
+and [Hugging Face Transformers](https://github.com/huggingface/transformers).

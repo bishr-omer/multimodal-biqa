@@ -1,9 +1,24 @@
-open-clip-torch
-torch
-Pillow<12.0
-numpy
-pandas
-scikit-learn
-scikit-image
-scipy
-tqdm
+# Core
+numpy>=1.24
+scipy>=1.10
+pandas>=2.0
+
+# Deep learning
+torch>=2.0
+torchvision>=0.15
+
+# VLM feature extraction
+open_clip_torch>=2.20
+transformers>=4.35
+Pillow>=9.0
+timm>=0.9
+
+# ML utilities
+scikit-learn>=1.3
+
+# Visualization (for figure generation scripts)
+matplotlib>=3.7
+
+# Miscellaneous
+tqdm>=4.65
+pyyaml>=6.0
