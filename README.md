@@ -1,44 +1,82 @@
-# Distortion-Aware Fusion of Statistical and Vision-Language Features for Blind Image Quality Assessment
+<div align="center">
 
-**Bishr Omer Abdelrahman, Xu Li**  
+# Distortion-Aware Fusion of Statistical and Vision-Language Features<br>for Blind Image Quality Assessment
+
+**Bishr Omer Abdelrahman · Xu Li**
+
 Northwestern Polytechnical University, Xi'an, China
+
+[![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python&logoColor=white)](https://python.org)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-ee4c2c?logo=pytorch&logoColor=white)](https://pytorch.org)
+[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+[![GitHub Stars](https://img.shields.io/github/stars/bishr-omer/multimodal-biqa?style=social)](https://github.com/bishr-omer/multimodal-biqa)
+
+</div>
 
 ---
 
 ## Overview
 
-We propose a three-stream blind image quality assessment (BIQA) framework that combines:
+We propose a **three-stream BIQA framework** that fuses classical natural scene statistics with two complementary vision-language models through a lightweight multiplicative gating mechanism.
 
-- **NSS stream:** 138-dimensional natural scene statistics descriptor (spatial + spectral)
-- **SigLIP stream:** ViT-SO400M-14-SigLIP-384 embeddings (1152D → 256D via PCA)
-- **CLIP-H stream:** ViT-H-14 LAION-2B embeddings (1024D → 256D via PCA)
+| Stream | Backbone | Output |
+|--------|----------|--------|
+| **NSS** | Spatial + spectral statistics | 138D |
+| **SigLIP** | ViT-SO400M-14-SigLIP-384 | 1152D → 256D (PCA) |
+| **CLIP-H** | ViT-H-14 LAION-2B | 1024D → 256D (PCA) |
 
-A lightweight **multiplicative gating network** learns per-input stream weights conditioned on image content. The gate values positively correlate (ρ = 0.33) with the per-distortion NSS contribution measured by independent ablation, providing interpretable cross-validation of the fusion design.
-
-All VLM backbones are kept **entirely frozen**. Only the MLP regression head (~466,000 parameters) is trained, making the entire pipeline runnable on CPU after a one-time GPU feature extraction step.
+- All VLM backbones are **entirely frozen** — no end-to-end fine-tuning required
+- Only the MLP regression head (**~466,000 parameters**) is trained
+- Full pipeline runs on **CPU** after a one-time GPU feature extraction step
+- A multiplicative gating network learns per-input stream weights; gate values correlate positively (**ρ = 0.33**) with per-distortion NSS contribution
 
 ---
 
 ## Results
 
-| Dataset | SROCC | PLCC |
-|---------|-------|------|
-| KonIQ-10k | **0.9142** | **0.9279** |
-| KADID-10k | **0.9715** | **0.9733** |
-| LIVE-itW | **0.8527** | **0.8802** |
+<div align="center">
 
-Our method achieves **state-of-the-art SROCC of 0.9715 on KADID-10k**, surpassing MANIQA (0.946), LIQE (0.930), and Q-Align (0.937).
-### Per-distortion analysis on KADID-10k
+### State-of-the-Art Comparison
 
+| Method | KonIQ SROCC | KADID SROCC | LIVE-itW SROCC |
+|--------|-------------|-------------|----------------|
+| BRISQUE | 0.665 | 0.528 | 0.561 |
+| HyperIQA | 0.906 | 0.852 | 0.852 |
+| MUSIQ | 0.916 | 0.872 | 0.847 |
+| MANIQA | 0.923 | 0.946 | 0.853 |
+| LIQE | 0.919 | 0.930 | 0.870 |
+| Q-Align† | 0.940 | 0.937 | 0.886 |
+| **Ours** | **0.9142** | **0.9715** | **0.8527** |
+
+† end-to-end fine-tuned backbone
+
+</div>
+
+> Our method achieves **state-of-the-art SROCC of 0.9715 on KADID-10k**, surpassing all comparison methods including Q-Align, while keeping VLM backbones frozen.
+
+---
+
+## Figures
+
+<table>
+<tr>
+<td width="50%">
+
+**Per-distortion SROCC on KADID-10k**
 ![Per-distortion SROCC](results/figures/fig2_per_distortion_srocc.png)
 
-![NSS contribution per distortion](results/figures/fig3_nss_contribution.png)
+</td>
+<td width="50%">
 
-### Distortion-aware gate analysis
+**NSS contribution per distortion type**
+![NSS contribution](results/figures/fig3_nss_contribution.png)
 
+</td>
+</tr>
+</table>
+
+**Distortion-aware gate analysis**
 ![Gate analysis](results/figures/fig_gate_analysis.png)
-
-
 
 ---
 
@@ -50,13 +88,13 @@ cd multimodal-biqa
 pip install -r requirements.txt
 ```
 
-Tested on Python 3.11, CPU-only training. GPU required only for feature extraction.
+> Tested on Python 3.11. GPU required only for feature extraction. All training runs on CPU.
 
 ---
 
-## Usage
+## Quick Start
 
-### Step 1: Extract NSS features
+### Step 1 — Extract NSS features (CPU)
 
 ```bash
 python extract_nss.py \
@@ -65,77 +103,44 @@ python extract_nss.py \
     --output_path features/koniq_nss.npy
 ```
 
-Supported datasets: `koniq`, `kadid`, `liveitw`
-
-### Step 2: Extract VLM features (requires GPU)
+### Step 2 — Extract VLM features (GPU)
 
 ```bash
-python extract_vlm.py \
-    --dataset koniq \
-    --image_dir /path/to/koniq/images \
-    --output_dir features/ \
-    --models siglip clip_h
+python extract_clip_h14.py --dataset koniq --image_dir /path/to/koniq/images
 ```
 
-This produces `koniq_siglip.npy` and `koniq_clip_h.npy` in the output directory.
+> **Skip this step** if using precomputed features (see below).
 
-Features are extracted once and cached. All subsequent training runs use the cached `.npy` files.
-
-### Step 3: Train static fusion (main paper results)
+### Step 3 — Train static fusion
 
 ```bash
-# KonIQ-10k
 python train_fusion.py --config configs/koniq.yaml
-
-# KADID-10k
 python train_fusion.py --config configs/kadid.yaml
-
-# LIVE-itW (pretrain + finetune + ensemble)
 python train_fusion_liveitw.py --config configs/liveitw.yaml
 ```
 
-### Step 4: Train gating model
+### Step 4 — Train gating model
 
 ```bash
 python train_gated.py --config configs/koniq.yaml
 python train_gated.py --config configs/kadid.yaml
 ```
 
-### Step 5: Evaluate
-
-```bash
-python evaluate.py \
-    --predictions results/predictions/koniq_NSS_SigLIP_CLIPH.csv \
-    --dataset koniq
-```
-
 ---
 
-## Ablation Results
+## Precomputed Features
 
-### KonIQ-10k (5-fold CV)
+Skip GPU feature extraction by downloading precomputed `.npy` files for all three datasets:
 
-| Configuration | SROCC | PLCC |
-|---------------|-------|------|
-| NSS only | 0.568 | 0.587 |
-| SigLIP only | 0.891 | 0.908 |
-| CLIP-H only | 0.882 | 0.900 |
-| NSS + SigLIP | 0.903 | 0.919 |
-| NSS + CLIP-H | 0.893 | 0.911 |
-| SigLIP + CLIP-H | 0.910 | 0.924 |
-| **All three** | **0.914** | **0.928** |
+<div align="center">
 
-### KADID-10k (5-fold CV)
+**[⬇ Download Precomputed Features (~250 MB, Google Drive)](https://drive.google.com/drive/folders/1Bk3ABv7LkEqYNyAk1lA7h2ffQGpX0uH9?usp=drive_link)**
 
-| Configuration | SROCC | PLCC |
-|---------------|-------|------|
-| NSS only | 0.898 | 0.898 |
-| SigLIP only | 0.967 | 0.969 |
-| CLIP-H only | 0.966 | 0.968 |
-| NSS + SigLIP | 0.970 | 0.971 |
-| NSS + CLIP-H | 0.969 | 0.970 |
-| SigLIP + CLIP-H | 0.970 | 0.972 |
-| **All three** | **0.972** | **0.973** |
+</div>
+
+Place downloaded files in the `features/` directory.
+
+---
 
 ## Repository Structure
 
@@ -144,29 +149,22 @@ python evaluate.py \
     ├── extract_mvg.py               # Alternative NSS extractor
     ├── extract_clip_h14.py          # CLIP-H feature extraction (GPU)
     ├── extract_dino.py              # DINOv2 feature extraction (GPU)
-    ├── train_fusion.py              # Static fusion, KonIQ/KADID 5-fold CV
+    ├── train_fusion.py              # Static fusion, 5-fold CV
     ├── fusion_kadid_mlp_v3.py       # KADID fusion with per-distortion analysis
     ├── train_fusion_liveitw.py      # Pretrain + finetune + ensemble for LIVE-itW
     ├── fusion_liveitw_koniq_only.py # KonIQ to LIVE-itW cross-dataset transfer
     ├── train_gated.py               # Multiplicative gating fusion
     ├── fig_gate_analysis.py         # Gate analysis figure
-    ├── make_paper_figures.py        # Main paper figures
-    ├── make_paper_figures_v3.py     # Additional figures
+    ├── make_paper_figures.py        # Paper figures
     ├── loss_ablation_experiment.py  # Loss ablation on KonIQ
     ├── loss_ablation_liveitw.py     # Loss ablation on LIVE-itW
     ├── requirements.txt
     ├── configs/
+    │   ├── koniq.yaml
+    │   ├── kadid.yaml
+    │   └── liveitw.yaml
     ├── figures/
     └── results/
-
-    
-## Pretrained Features
-
-Precomputed features for all three datasets are available at:
-
-> **[Download precomputed features (~250 MB, Google Drive)](https://drive.google.com/drive/folders/1Bk3ABv7LkEqYNyAk1lA7h2ffQGpX0uH9?usp=drive_link)**
-
-Download and place in the `features/` directory.
 
 ---
 
@@ -186,6 +184,6 @@ If you find this work useful, please cite:
 ---
 
 ## Acknowledgements
-  
+
 VLM feature extraction uses [OpenCLIP](https://github.com/mlfoundations/open_clip)
 and [Hugging Face Transformers](https://github.com/huggingface/transformers).
