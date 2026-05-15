@@ -137,40 +137,29 @@ python evaluate.py \
 | SigLIP + CLIP-H | 0.970 | 0.972 |
 | **All three** | **0.972** | **0.973** |
 
----
-
 ## Repository Structure
 
-```
-## Repository Structure
+    multimodal-biqa/
+    ├── extract_nss.py               # NSS feature extraction (CPU)
+    ├── extract_mvg.py               # Alternative NSS extractor
+    ├── extract_clip_h14.py          # CLIP-H feature extraction (GPU)
+    ├── extract_dino.py              # DINOv2 feature extraction (GPU)
+    ├── train_fusion.py              # Static fusion, KonIQ/KADID 5-fold CV
+    ├── fusion_kadid_mlp_v3.py       # KADID fusion with per-distortion analysis
+    ├── train_fusion_liveitw.py      # Pretrain + finetune + ensemble for LIVE-itW
+    ├── fusion_liveitw_koniq_only.py # KonIQ to LIVE-itW cross-dataset transfer
+    ├── train_gated.py               # Multiplicative gating fusion
+    ├── fig_gate_analysis.py         # Gate analysis figure
+    ├── make_paper_figures.py        # Main paper figures
+    ├── make_paper_figures_v3.py     # Additional figures
+    ├── loss_ablation_experiment.py  # Loss ablation on KonIQ
+    ├── loss_ablation_liveitw.py     # Loss ablation on LIVE-itW
+    ├── requirements.txt
+    ├── configs/
+    ├── figures/
+    └── results/
 
-```
-multimodal-biqa/
-├── extract_nss.py              # NSS feature extraction (CPU)
-├── extract_mvg.py              # Alternative NSS extractor
-├── extract_clip_h14.py         # CLIP-H feature extraction (GPU)
-├── extract_dino.py             # DINOv2 feature extraction (GPU)
-├── train_fusion.py             # Static fusion, KonIQ/KADID 5-fold CV
-├── fusion_kadid_mlp_v3.py      # KADID-specific fusion with per-distortion analysis
-├── train_fusion_liveitw.py     # Pretrain + finetune + ensemble for LIVE-itW
-├── fusion_liveitw_koniq_only.py # KonIQ → LIVE-itW cross-dataset transfer
-├── train_gated.py              # Multiplicative gating fusion
-├── fig_gate_analysis.py        # Gate analysis figure
-├── make_paper_figures.py       # Main paper figures (Figs 2-5, 7)
-├── make_paper_figures_v3.py    # Additional figures (Figs 6, 9, 10)
-├── loss_ablation_experiment.py # Loss function ablation on KonIQ
-├── loss_ablation_liveitw.py    # Loss function ablation on LIVE-itW
-├── requirements.txt
-├── configs/
-│   ├── koniq.yaml
-│   ├── kadid.yaml
-│   └── liveitw.yaml
-├── figures/                    # Figure generation scripts
-└── results/                    # Summary CSVs from all experiments
-```
-
----
-
+    
 ## Pretrained Features
 
 Precomputed features for all three datasets are available at:
