@@ -3,8 +3,6 @@
 **Bishr Omer Abdelrahman, Xu Li**  
 Northwestern Polytechnical University, Xi'an, China
 
-> *Submitted for publication. Preprint coming soon.*
-
 ---
 
 ## Overview
