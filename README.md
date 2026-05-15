@@ -168,7 +168,7 @@ multimodal-biqa/
 
 Precomputed features for all three datasets are available at:
 
-> **[Google Drive link — coming soon]**
+> **[Download precomputed features (~250 MB, Google Drive)](https://drive.google.com/drive/folders/1Bk3ABv7LkEqYNyAk1lA7h2ffQGpX0uH9?usp=drive_link)**
 
 Download and place in the `features/` directory.
 
@@ -183,7 +183,6 @@ If you find this work useful, please cite:
   title   = {Distortion-Aware Fusion of Statistical and Vision-Language
              Features for Blind Image Quality Assessment},
   author  = {Adam, Bishr Omer and Li, Xu},
-  journal = {[journal name]},
   year    = {2026}
 }
 ```
@@ -191,7 +190,6 @@ If you find this work useful, please cite:
 ---
 
 ## Acknowledgements
-
-This work was supported by [funding agency].  
+  
 VLM feature extraction uses [OpenCLIP](https://github.com/mlfoundations/open_clip)
 and [Hugging Face Transformers](https://github.com/huggingface/transformers).
