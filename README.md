@@ -30,6 +30,17 @@ All VLM backbones are kept **entirely frozen**. Only the MLP regression head (~4
 | LIVE-itW | **0.8527** | **0.8802** |
 
 Our method achieves **state-of-the-art SROCC of 0.9715 on KADID-10k**, surpassing MANIQA (0.946), LIQE (0.930), and Q-Align (0.937).
+### Per-distortion analysis on KADID-10k
+
+![Per-distortion SROCC](results/figures/fig2_per_distortion_srocc.png)
+
+![NSS contribution per distortion](results/figures/fig3_nss_contribution.png)
+
+### Distortion-aware gate analysis
+
+![Gate analysis](results/figures/fig_gate_analysis.png)
+
+
 
 ---
 
