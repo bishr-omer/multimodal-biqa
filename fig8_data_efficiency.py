@@ -1,10 +1,4 @@
 """
-fig8_data_efficiency.py - Generate Fig. 8: SROCC vs LIVE-itW training set size
-
-Subsamples the LIVE-itW training fold to 20%, 40%, 60%, 80%, 100%
-and evaluates the full pretrain+finetune+ensemble pipeline.
-
-Single fold only (uses fold 0 of the 5-fold split) to keep runtime tractable.
 Estimated runtime: ~30 min on CPU.
 """
 import os
