@@ -8,3 +8,35 @@ venv/
 .DS_Store
 *.ipynb
 .ipynb_checkpoints/
+# Old experiment scripts
+exp1_*.py
+exp_probe_*.py
+benchmark.py
+check.py
+check_features.py
+check_spaq.py
+convert_figures.py
+repo_guide.txt
+make_figure2.py
+fusion_gated_koniq_kadid.py
+fusion_kadid_v2.py
+fusion_liveitw_v2.py
+fusion_liveitw_mlp_v3.py
+fusion_mlp.py
+fusion_spaq_mlp_v3.py
+fusion_v2.py
+
+# Old result files
+results/exp1_*.npz
+results/exp_probe_*.npz
+results/figure2_asymmetry.*
+results/fig8_data_efficiency.csv
+results/liveitw_fusion_mlp_v3_results.csv
+results/liveitw_intra_results.csv
+results/loss_ablation_*.csv
+results/mult_gated_fusion_results.csv
+results/figures - Copy/
+results/figures/*.pdf
+
+# Data folder
+data/
