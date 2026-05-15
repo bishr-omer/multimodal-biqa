@@ -8,7 +8,7 @@ from torchvision import transforms
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-# ViT-H/14 trained on LAION-2B — 1024-dim, stronger than OpenAI ViT-L/14@336
+# ViT-H/14 trained on LAION-2B — 1024-dim
 model, _, preprocess = open_clip.create_model_and_transforms(
     'ViT-H-14', pretrained='laion2b_s32b_b79k'
 )
