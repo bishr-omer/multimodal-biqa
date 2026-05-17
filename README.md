@@ -38,18 +38,21 @@ We propose a **three-stream BIQA framework** that fuses classical natural scene 
 
 ### State-of-the-Art Comparison
 
-| Method | KonIQ SROCC | KADID SROCC | LIVE-itW SROCC |
-|--------|-------------|-------------|----------------|
-| BRISQUE | 0.665 | 0.528 | 0.561 |
-| HyperIQA | 0.906 | 0.852 | 0.852 |
-| MUSIQ | 0.916 | 0.872 | 0.847 |
-| MANIQA | 0.923 | 0.946 | 0.853 |
-| LIQE | 0.919 | 0.930 | 0.870 |
-| Q-Align† | 0.940 | 0.937 | 0.886 |
-| **Ours** | **0.9142** | **0.9715** | **0.8527** |
+| Method | KonIQ SROCC | KonIQ PLCC | KADID SROCC | KADID PLCC | LIVE-itW SROCC | LIVE-itW PLCC |
+|--------|-------------|------------|-------------|------------|----------------|---------------|
+| BRISQUE | 0.665 | 0.681 | 0.528 | 0.567 | 0.561 | 0.598 |
+| NIQE | 0.415 | 0.438 | 0.389 | 0.442 | 0.446 | 0.507 |
+| IL-NIQE | 0.509 | 0.534 | 0.565 | 0.611 | 0.469 | 0.518 |
+| DBCNN | 0.875 | 0.884 | 0.851 | 0.856 | 0.755 | 0.773 |
+| HyperIQA | 0.906 | 0.917 | 0.852 | 0.845 | 0.855 | 0.878 |
+| MUSIQ | 0.915 | 0.937 | 0.872 | 0.875 | 0.785 | 0.828 |
+| MANIQA | 0.923 | 0.940 | 0.946 | 0.946 | 0.853 | 0.875 |
+| CLIP-IQA+ | 0.895 | 0.909 | 0.823 | 0.838 | 0.805 | 0.832 |
+| LIQE | 0.919 | 0.908 | 0.930 | 0.931 | 0.870 | 0.910 |
+| Q-Align† | 0.940 | 0.941 | 0.937 | 0.941 | 0.860 | 0.853 |
+| **Ours** | **0.914** | **0.928** | **0.972** | **0.973** | **0.853** | **0.880** |
 
-† end-to-end fine-tuned backbone
-
+† end-to-end fine-tuned backbone. KonIQ and LIVE-itW numbers from [LIQE](https://arxiv.org/abs/2303.14968) and [Q-Align](https://arxiv.org/abs/2312.17090); KADID numbers from original papers.
 </div>
 
 > Our method achieves **state-of-the-art SROCC of 0.9715 on KADID-10k**, surpassing all comparison methods including Q-Align, while keeping VLM backbones frozen.
