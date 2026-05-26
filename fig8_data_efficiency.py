@@ -1,6 +1,4 @@
-"""
-Estimated runtime: ~30 min on CPU.
-"""
+
 import os
 import numpy as np
 import pandas as pd
