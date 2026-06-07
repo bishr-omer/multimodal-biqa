@@ -19,32 +19,15 @@ Northwestern Polytechnical University, Xi'an, China
 
 We propose a **three-stream BIQA framework** that fuses classical natural scene statistics with two complementary vision-language models through a lightweight multiplicative gating mechanism.
 
-<table style="width: 100%; table-layout: fixed;">
-  <thead>
-    <tr>
-      <th style="width: 20%; text-align: left;">Stream</th>
-      <th style="width: 50%; text-align: left;">Backbone</th>
-      <th style="width: 30%; text-align: left;">Output</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><b>NSS</b></td>
-      <td>Spatial + spectral statistics</td>
-      <td>138D</td>
-    </tr>
-    <tr>
-      <td><b>SigLIP</b></td>
-      <td>ViT-SO400M-14-SigLIP-384</td>
-      <td>1152D → 256D (PCA)</td>
-    </tr>
-    <tr>
-      <td><b>CLIP-H</b></td>
-      <td>ViT-H-14 LAION-2B</td>
-      <td>1024D → 256D (PCA)</td>
-    </tr>
-  </tbody>
-</table>
+| Stream | Backbone | Output |
+
+|--------|----------|--------|
+
+| **NSS** | Spatial + spectral statistics | 138D |
+
+| **SigLIP** | ViT-SO400M-14-SigLIP-384 | 1152D → 256D (PCA) |
+
+| **CLIP-H** | ViT-H-14 LAION-2B | 1024D → 256D (PCA) |
 
 - All VLM backbones are **entirely frozen** — no end-to-end fine-tuning required
 - Only the MLP regression head (**~466,000 parameters**) is trained
