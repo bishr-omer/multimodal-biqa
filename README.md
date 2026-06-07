@@ -19,6 +19,8 @@ Northwestern Polytechnical University, Xi'an, China
 
 We propose a **three-stream BIQA framework** that fuses classical natural scene statistics with two complementary vision-language models through a lightweight multiplicative gating mechanism.
 
+<br clear="all">
+
 | Stream | Backbone | Output |
 |--------|----------|--------|
 | **NSS** | Spatial + spectral statistics | 138D |
