@@ -2,7 +2,7 @@
 
 # Low-Rank Adaptation of Frozen Vision-Language Models<br>for Blind Image Quality Assessment
 
-**Bishr Omer Abdelrahman Adam · Xu Li**
+**Bishr Omer Adam · Xu Li**
 
 Northwestern Polytechnical University, Xi'an, China
 
