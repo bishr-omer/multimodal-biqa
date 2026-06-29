@@ -40,3 +40,8 @@ results/figures/*.pdf
 
 # Data folder
 data/
+*.npz
+.venv/
+*.npz
+meta_info/
+meta_info/
