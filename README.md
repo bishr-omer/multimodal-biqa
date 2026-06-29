@@ -154,7 +154,7 @@ the [IQA-PyTorch toolbox datasets](https://huggingface.co/datasets/chaofengc/IQA
 @article{adam2026lora,
   title   = {Low-Rank Adaptation of Frozen Vision-Language Models
              for Blind Image Quality Assessment},
-  author  = {Adam, Bishr Omer Abdelrahman and Li, Xu},
+  author  = {Adam, Bishr Omer and Li, Xu},
   year    = {2026}
 }
 ```
